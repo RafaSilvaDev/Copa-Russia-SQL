@@ -1,0 +1,11 @@
+-- total de jogos: 
+select * from total_partidas;
+
+-- total de gols por jogador:
+select * from total_gols_jogador;
+
+-- media de faltas por partida:
+select * from media_faltas;
+
+-- media de gols do mês de julho:
+select * from media_gols_julho;
