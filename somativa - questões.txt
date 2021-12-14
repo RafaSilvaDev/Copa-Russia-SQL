@@ -9,3 +9,12 @@ select * from media_faltas;
 
 -- media de gols do mês de julho:
 select * from media_gols_julho;
+
+-- procedure para insert de 12 jogadores:
+create procedure insere_jogador () 
+begin
+	DECLARE @i int = 0,
+    WHILE @i < 300, 
+end;
+
+-- criar trigger para chamar procedure:
