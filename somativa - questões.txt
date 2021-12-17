@@ -31,13 +31,12 @@ BEGIN
 		END  IF;
             
 		SET  x = x + 1;
-        set str = (SELECT nome FROM jogador ORDER BY RAND() LIMIT 1);
-        select str;
-        set fk = (SELECT id_partida FROM partida ORDER BY id_partida DESC LIMIT 1);
+        SELECT nome INTO str FROM jogador where nacionalidade = "Brasileiro" ORDER BY RAND() LIMIT 1;
+		SELECT id_partida INTO fk FROM partida ORDER BY id_partida DESC LIMIT 1;
                 
         insert into log_de_jogadores(nome, fk_partida) values(str, fk);
 	END LOOP;
-END
+END$$
 
 -- criar trigger para chamar procedure:
 delimiter $

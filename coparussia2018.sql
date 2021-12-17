@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 14-Dez-2021 às 15:13
+-- Tempo de geração: 17-Dez-2021 às 12:28
 -- Versão do servidor: 10.4.19-MariaDB
 -- versão do PHP: 7.3.28
 
@@ -20,6 +20,33 @@ SET time_zone = "+00:00";
 --
 -- Banco de dados: `coparussia2018`
 --
+
+DELIMITER $$
+--
+-- Procedimentos
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insere_jogador` ()  BEGIN
+	DECLARE x INT;
+    declare str varchar(80);
+    declare fk int;
+    
+	SET x = 1;
+        
+	loop_label:  LOOP
+		IF  x > 12 THEN
+			SET x = 1;
+			LEAVE  loop_label;
+		END  IF;
+            
+		SET  x = x + 1;
+        SELECT nome INTO str FROM jogador where nacionalidade = "Brasileiro" ORDER BY RAND() LIMIT 1;
+		SELECT id_partida INTO fk FROM partida ORDER BY id_partida DESC LIMIT 1;
+                
+        insert into log_de_jogadores(nome, fk_partida) values(str, fk);
+	END LOOP;
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -87,7 +114,8 @@ INSERT INTO `caveira` (`id_caveira`, `qtd_faltas`, `qtd_gols`, `min_sub`, `qtd_c
 (12, 0, 2, 71, 0, 2),
 (13, 0, 1, 61, 0, 2),
 (14, 0, 1, 0, 0, 2),
-(15, 1, 1, 79, 0, 1);
+(15, 1, 1, 79, 0, 1),
+(16, 0, 0, 0, 0, 2);
 
 -- --------------------------------------------------------
 
@@ -164,12 +192,14 @@ INSERT INTO `jogador` (`id_jogador`, `nome`, `nacionalidade`, `fk_caveira`, `fk_
 (5, 'Antony', 'Brasileiro', 1, 1),
 (6, 'Ángel Di Maria', 'Argentino', 15, 2),
 (7, 'Luis Suarez', 'Uruguaio', 11, 7),
-(8, 'Gabigol', 'Brasileira', 13, 1),
-(9, 'Thiago Silva', 'Brasileiro', 14, 1),
-(10, 'Marquinhos', 'Brasileiro', 14, 1),
+(8, 'Gabigol', 'Brasileiro', 13, 1),
+(9, 'Thiago Silva', 'Brasileiro', 1, 1),
+(10, 'Marquinhos', 'Brasileiro', 16, 1),
 (11, 'Casemiro', 'Brasileiro', 1, 1),
-(12, 'Paquetá', 'Brasileiro', 2, 1),
-(13, 'Emerson Royal', 'Brasileiro', 9, 1);
+(12, 'Paquetá', 'Brasileiro', 5, 1),
+(13, 'Emerson Royal', 'Brasileiro', 9, 1),
+(14, 'Ederson Moraes', 'Brasileiro', 16, 1),
+(15, 'Richarlison', 'Brasileiro', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -182,6 +212,36 @@ CREATE TABLE `log_de_jogadores` (
   `nome` varchar(60) DEFAULT NULL,
   `fk_partida` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Extraindo dados da tabela `log_de_jogadores`
+--
+
+INSERT INTO `log_de_jogadores` (`id_log`, `nome`, `fk_partida`) VALUES
+(61, 'Casemiro', 3),
+(62, 'Casemiro', 3),
+(63, 'Antony', 3),
+(64, 'Richarlison', 3),
+(65, 'Emerson Royal', 3),
+(66, 'Neymar Jr', 3),
+(67, 'Richarlison', 3),
+(68, 'Gabigol', 3),
+(69, 'Raphinha', 3),
+(70, 'Casemiro', 3),
+(71, 'Ederson Moraes', 3),
+(72, 'Ederson Moraes', 3),
+(109, 'Paquetá', 10),
+(110, 'Paquetá', 10),
+(111, 'Thiago Silva', 10),
+(112, 'Paquetá', 10),
+(113, 'Antony', 10),
+(114, 'Neymar Jr', 10),
+(115, 'Emerson Royal', 10),
+(116, 'Thiago Silva', 10),
+(117, 'Neymar Jr', 10),
+(118, 'Antony', 10),
+(119, 'Casemiro', 10),
+(120, 'Richarlison', 10);
 
 -- --------------------------------------------------------
 
@@ -225,7 +285,19 @@ CREATE TABLE `partida` (
 
 INSERT INTO `partida` (`id_partida`, `data_partida`, `hora_inicio`, `qtd_gols`, `qtd_faltas`, `fk_time_casa`, `fk_time_fora`, `fk_copa`) VALUES
 (1, '2021-07-10', '21:00:00', 1, 41, 1, 2, 2),
-(2, '2021-10-14', '21:30:00', 5, 18, 1, 7, 1);
+(2, '2021-10-14', '21:30:00', 5, 18, 1, 7, 1),
+(3, '2021-07-05', '20:00:00', 1, 28, 1, 5, 2),
+(10, '2021-07-05', '20:00:00', 1, 28, 1, 5, 2);
+
+--
+-- Acionadores `partida`
+--
+DELIMITER $$
+CREATE TRIGGER `trigInserir` AFTER INSERT ON `partida` FOR EACH ROW BEGIN
+   call insere_jogador();
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -350,7 +422,7 @@ ALTER TABLE `arbitro`
 -- AUTO_INCREMENT de tabela `caveira`
 --
 ALTER TABLE `caveira`
-  MODIFY `id_caveira` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id_caveira` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de tabela `copa`
@@ -368,19 +440,19 @@ ALTER TABLE `equipe`
 -- AUTO_INCREMENT de tabela `jogador`
 --
 ALTER TABLE `jogador`
-  MODIFY `id_jogador` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_jogador` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de tabela `log_de_jogadores`
 --
 ALTER TABLE `log_de_jogadores`
-  MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=121;
 
 --
 -- AUTO_INCREMENT de tabela `partida`
 --
 ALTER TABLE `partida`
-  MODIFY `id_partida` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_partida` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Restrições para despejos de tabelas
